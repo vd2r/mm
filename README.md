@@ -1,1 +1,168 @@
-# mm
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>نظام إضافة الطلبات</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background: #f4f6f8; margin: 0; padding: 20px; }
+    h1 { text-align: center; margin-bottom: 20px; }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    form input, form button {
+      padding: 10px;
+      font-size: 15px;
+    }
+
+    form button {
+      grid-column: span 2;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    form button:hover { background: #0056b3; }
+
+    .orders {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+    }
+
+    .order-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      background: #fafafa;
+    }
+
+    .order-card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    .order-card p {
+      margin: 6px 0;
+      font-size: 14px;
+    }
+
+    .delete-btn {
+      margin-top: 10px;
+      width: 100%;
+      padding: 8px;
+      background: #dc3545;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .delete-btn:hover { background: #a71d2a; }
+
+    @media (max-width: 600px) {
+      form { grid-template-columns: 1fr; }
+      form button { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>إضافة طلب جديد</h1>
+
+  <div class="container">
+    <form id="orderForm">
+      <input type="file" id="image" accept="image/*" required />
+      <input type="text" id="name" placeholder="اسم الزبون" required />
+      <input type="text" id="phone" placeholder="رقم الهاتف" required />
+      <input type="text" id="address" placeholder="العنوان" required />
+      <input type="text" id="city" placeholder="المحافظة" required />
+      <button type="submit">إضافة الطلب</button>
+    </form>
+
+    <div class="orders" id="orders"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('orderForm');
+    const ordersDiv = document.getElementById('orders');
+
+    let orders = JSON.parse(localStorage.getItem('orders')) || [];
+
+    function saveOrders() {
+      localStorage.setItem('orders', JSON.stringify(orders));
+    }
+
+    function renderOrders() {
+      ordersDiv.innerHTML = '';
+      orders.forEach((order, index) => {
+        const card = document.createElement('div');
+        card.className = 'order-card';
+
+        card.innerHTML = `
+          <img src="${order.image}" />
+          <p><strong>الاسم:</strong> ${order.name}</p>
+          <p><strong>الهاتف:</strong> ${order.phone}</p>
+          <p><strong>العنوان:</strong> ${order.address}</p>
+          <p><strong>المحافظة:</strong> ${order.city}</p>
+          <button class="delete-btn" onclick="deleteOrder(${index})">حذف الطلب</button>
+        `;
+
+        ordersDiv.appendChild(card);
+      });
+    }
+
+    function deleteOrder(index) {
+      orders.splice(index, 1);
+      saveOrders();
+      renderOrders();
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+
+      const file = document.getElementById('image').files[0];
+      const reader = new FileReader();
+
+      reader.onload = function () {
+        const order = {
+          image: reader.result,
+          name: name.value,
+          phone: phone.value,
+          address: address.value,
+          city: city.value
+        };
+
+        orders.push(order);
+        saveOrders();
+        renderOrders();
+        form.reset();
+      };
+
+      reader.readAsDataURL(file);
+    });
+
+    renderOrders();
+  </script>
+
+</body>
+</html>
